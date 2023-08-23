@@ -1,0 +1,41 @@
+body{
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background-color: #000088;
+  background-size: 1800px;
+}
+canvas{
+  margin: 0;
+  padding: 0;
+  margin-right: 1%;
+}
+div{
+  position: absolute;
+}
+div*{
+  position: absolute;
+}
+img{
+  image-rendering: pixelated;
+}
+.no-pressed-button{
+  background-color: black;
+  color: white;
+  position: absolute;
+  margin: 0;
+  padding:0;
+  border: solid white 2px;
+}
+.pressed-button{
+  background-color: white;
+  color: black;
+  position: absolute;
+  margin: 0;
+  padding:0;
+  border: solid black 2px;
+}
+*{
+  font-family: OCR A Std, monospace;
+}
