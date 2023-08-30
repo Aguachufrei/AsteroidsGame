@@ -3,15 +3,15 @@ class Game {
   constructor(config) {
     //config
     this.level = config.level;
-    this.wave = 1
-    this.inDelay = false
+    this.wave = 1;
+    this.inDelay = false;
     this.type = config.type || "challenge";
-    this.asteroidsToSpawn = [0, 0, 0, 0, 0]
+    this.asteroidsToSpawn = [0, 0, 0, 0, 0];
 
     //Canvas and context
     rel = this;
-    this.canvas = document.createElement("canvas")
-    this.canvas.setAttribute("id", "canvas")
+    this.canvas = document.createElement("canvas");
+    this.canvas.setAttribute("id", "canvas");
     this.canvas.width = window.innerWidth * 100 / 95;
     this.canvas.height = window.innerHeight * 100 / 95;
     this.canvas.backgroundColor = Utils.defaultIfError("Object.assign({},levelsInfo)[rel.level-1].characteristics.backgroundColor", "#000000");
@@ -23,18 +23,20 @@ class Game {
     this.time1 = Date.now();
     this.time2;
     this.FPS = 1000;
-    this.maxFPS = 60;
+    this.maxFPS = 100;
     this.FPSaverage = 1;
-    this.loopCount = 0;
+    this.frame = 0;
+    this.waveFrame = 0;
+    this.showColliders = true;
 
     //sounds
-    this.shotAudio = new Audio("Audios/shot.mp3")
+    this.shotAudio = new Audio("Audios/shot.mp3");
     this.shotAudio.volume = 0.2;
 
     this.asteroidDestroying = new Audio("Audios/asteroidDestroying.mp3");
     this.asteroidDestroying.volume = 0.2;
 
-    this.mainTheme = new Audio("Audios/temporalTheme.mp3")
+    this.mainTheme = new Audio("Audios/temporalTheme.mp3");
     this.mainTheme.volume = 0.2;
 
     //player
@@ -67,6 +69,8 @@ class Game {
     this.player.bulletsPierce = gameSettings.bulletsPierce;
     this.player.bulletsDie = gameSettings.bulletsDie; */
 
+    this.pressInterval = 250;
+
     //Bullets
     this.bulletsVariable;
     this.bulletsArray = [];
@@ -75,7 +79,6 @@ class Game {
 
     //Asteroids
     this.canPress = true;
-    this.pressInterval = 250;
     this.asteroidsVariable;
     this.asteroidsArray = [];
     this.asteroidSpeed = Utils.defaultIfError("Object.assign({},levelsInfo)[this.level-1].characteristics.asteroidSpeed", 2);
@@ -83,7 +86,7 @@ class Game {
     //Laser beams
     this.laserBeamsVariable;
     this.laserBeamsArray = [];
-
+    this.laserBeamsCanSpawn = true;
 
     //Messages
     this.messageDuration = 1000;
@@ -92,6 +95,7 @@ class Game {
     this.messageCount = 0;
     this.messagesArray = [];
   }
+
   create() {
     document.addEventListener("event", this.wipe);
     this.body.appendChild(this.canvas);
@@ -101,7 +105,7 @@ class Game {
       this.mainTheme.currentTime = 0;
       this.mainTheme.play();
     }
-    this.displayMessage()
+    this.displayMessage();
     if (this.type === "sandbox") return;
     this.asteroidsToSpawn = [...levelsInfo[this.level - 1].waves[this.wave - 1].asteroids];
   }
@@ -129,27 +133,28 @@ class Game {
     this.messagesVariable.init;
     setTimeout(() => {
       this.messagesVariable.end();
-      this.messageCount++
+      this.waveFrame = 0;
+      this.messageCount++;
       this.displayMessage();
     }, levelsInfoCopy[this.level - 1].waves[this.wave - 1].messages[this.messageCount][1]);
-
   }
 
   waves() {
     if (this.type === "sandbox") { return; }
     for (let i = 0; i < this.asteroidsToSpawn.length; i++) {
-      if (this.asteroidsToSpawn[i] === 0) { continue } else { return }
+      if (this.asteroidsToSpawn[i] === 0) { continue; } else { return; }
     }
     for (var i = this.asteroidsArray.length; i--;) {
-      if (!this.asteroidsArray[i].alive) { continue } else { return }
+      if (!this.asteroidsArray[i].alive) { continue; } else { return; }
     }
+    this.laserBeamsArray = [];
     if (levelsInfo[this.level - 1].waves.length === this.wave) {
       this.won();
     } else {
       this.wave++;
-      this.messageCount = 0
+      this.messageCount = 0;
       this.asteroidsToSpawn = [...levelsInfo[this.level - 1].waves[this.wave - 1].asteroids];
-      this.displayMessage()
+      this.displayMessage();
     }
   }
 
@@ -202,6 +207,7 @@ class Game {
     );
     this.ctx.restore();
   }
+
   createAsteroids() {
     if (this.inDelay) { return; }
     for (var i = 0; i < this.asteroidsToSpawn[0]; i++) {
@@ -232,7 +238,6 @@ class Game {
   }
 
   createBullets() {
-
     if ((keys.includes("Space") || this.player.autofire === true) && this.canShoot) {
       if (this.shotAudio.canPlay = true) {
         this.shotAudio.currentTime = 0;
@@ -246,9 +251,28 @@ class Game {
       this.bulletsVariable.init();
       if (!this.player.reloadTime) { return; }
       this.canShoot = false;
-      setTimeout(() => { this.canShoot = true }, this.shootInterval);
+      setTimeout(() => { this.canShoot = true; }, this.shootInterval);
     }
   }
+
+  createLaserBeams() {
+    if (this.type === "sandbox") { return; }
+    if (levelsInfo[this.level - 1].waves[this.wave - 1].laserBeams === undefined) { return; }
+    if (this.inDelay) { return; }
+    if (this.waveFrame < levelsInfo[this.level - 1].waves[this.wave - 1].laserBeams.delay) { return; }
+    if (this.laserBeamsCanSpawn === false) { return; }
+    if (levelsInfo[this.level - 1].waves[this.wave - 1].laserBeams.amount < 0) { return; }
+    if (levelsInfo[this.level - 1].waves[this.wave - 1].laserBeams.amount != "infinite") { amount--; }
+    //sound missing
+    this.laserBeamsVariable = new LaserBeam({
+      focus: levelsInfo[this.level - 1].waves[this.wave - 1].laserBeams.focus,
+    });
+    this.laserBeamsVariable.init();
+    if (!this.player.reloadTime) { return; }
+    this.laserBeamsCanSpawn = false;
+    setTimeout(() => { this.laserBeamsCanSpawn = true }, levelsInfo[this.level - 1].waves[this.wave - 1].laserBeams.period + levelsInfo[this.level - 1].waves[this.wave - 1].laserBeams.period * (Math.random() * 2 * levelsInfo[this.level - 1].waves[this.wave - 1].laserBeams.timeRandomness - levelsInfo[this.level - 1].waves[this.wave - 1].laserBeams.timeRandomness) / 100);
+  }
+
   entitiesUpdate() {
     for (var i = this.bulletsArray.length; i--;) {
       this.bulletsArray[i].update();
@@ -259,9 +283,10 @@ class Game {
     for (var i = this.laserBeamsArray.length; i--;) {
       this.laserBeamsArray[i].update();
     }
-    if (this.keyMessagesVariable != undefined) { this.keyMessagesVariable.update() }
-    if (this.messagesVariable != undefined) { this.messagesVariable.update() }
+    if (this.keyMessagesVariable != undefined) { this.keyMessagesVariable.update(); }
+    if (this.messagesVariable != undefined) { this.messagesVariable.update(); }
   }
+
   bulletAsteroidCollison() {
     for (var i = this.asteroidsArray.length; i--;) {
       if (!this.asteroidsArray[i].alive) { continue; }
@@ -323,29 +348,26 @@ class Game {
         }
         this.asteroidsArray[i].alive = false;
         this.asteroidsArray.splice(i, 1);
-        console.log(j)
         if (!this.player.bulletsPierce) { this.bulletsArray.splice(j, 1); }
       }
     }
   }
+
   playerAsteroidCollison() {
     if (this.player.godMode) { return; }
     for (var i = this.asteroidsArray.length; i--;) {
       if (this.asteroidsArray[i].alive) {
-        var a;
-        var x;
-        var y;
-
+        var a, x, y;
         a = this.asteroidsArray[i].width / 2 + this.player.width / 2;
         x = this.asteroidsArray[i].x - this.player.x;
         y = this.asteroidsArray[i].y - this.player.y;
-
         if (a > Math.sqrt((x * x) + (y * y))) {
           this.player.alive = false;
-        } else { }
+        }
       }
     }
   }
+
   playerLaserBeamCollison() {
     if (this.player.godMode) { return; }
     for (var i = this.laserBeamsArray.length; i--;) {
@@ -402,14 +424,14 @@ class Game {
       gameSettings.autofire = !gameSettings.autofire;
       this.player.autofire = gameSettings.autofire;
       setTimeout(() => { ; this.canPress = true }, this.pressInterval);
-      this.createKeyMessages(`Autofire: ${gameSettings.autofire ? `on` : `off`} `)
+      this.createKeyMessages(`Autofire: ${gameSettings.autofire ? `on` : `off`} `);
     }
     if (keys.includes("KeyT")) {
       this.canPress = false;
       gameSettings.recoil = !gameSettings.recoil;
       this.player.recoil = gameSettings.recoil;
       setTimeout(() => { ; this.canPress = true }, this.pressInterval);
-      this.createKeyMessages(`Recoil: ${gameSettings.recoil ? `on` : `off`} `)
+      this.createKeyMessages(`Recoil: ${gameSettings.recoil ? `on` : `off`} `);
     }
 
     //sandbox options
@@ -424,14 +446,14 @@ class Game {
       gameSettings.godMode = !gameSettings.godMode;
       this.player.godMode = gameSettings.godMode;
       setTimeout(() => { this.canPress = true }, this.pressInterval);
-      this.createKeyMessages(`God Mode: ${gameSettings.godMode ? `on` : `off`} `)
+      this.createKeyMessages(`God Mode: ${gameSettings.godMode ? `on` : `off`} `);
     }
     if (keys.includes("KeyR")) {
       this.canPress = false;
       gameSettings.reloadTime = !gameSettings.reloadTime;
       this.player.reloadTime = gameSettings.reloadTime;
       setTimeout(() => { this.canPress = true }, this.pressInterval);
-      this.createKeyMessages(`Reload Time: ${gameSettings.reloadTime ? `on` : `off`} `)
+      this.createKeyMessages(`Reload Time: ${gameSettings.reloadTime ? `on` : `off`} `);
     }
     if (keys.includes("KeyP")) {
       this.canPress = false;
@@ -475,12 +497,14 @@ class Game {
       setTimeout(() => { this.canPress = true }, this.pressInterval);
     }
   }
-  performance(){
+
+  performance() {
     this.time2 = Date.now();
     this.FPS = Math.round(1000 / (this.time2 - this.time1));
     this.time1 = this.time2;
-    this.loopCount++
-    this.FPSaverage = this.FPSaverage*this.FPS/this.FPSaverage
+    this.frame++;
+    this.waveFrame++;
+    this.FPSaverage = this.FPSaverage * this.FPS / this.FPSaverage;
     this.ctx.beginPath();
     this.ctx.fillStyle = "#00ffff";
     this.ctx.font = "12px serif";
@@ -497,6 +521,7 @@ class Game {
     this.playerMovement();
     this.createBullets();
     this.createAsteroids();
+    this.createLaserBeams();
     this.entitiesUpdate();
     this.bulletAsteroidCollison();
     this.playerAsteroidCollison();
@@ -510,7 +535,7 @@ class Game {
         requestAnimationFrame(() => {
           this.draw();
         });
-      }, 1000 / this.maxFPS)
+      }, 1000 / this.maxFPS);
     }
   }
 }

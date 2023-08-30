@@ -1,21 +1,18 @@
 class Asteroid {
   constructor(type, config) {
     rel.canvas = document.getElementById("canvas");
-
     this.asteroidImage = new Image();
     this.asteroidImage.src = "Images/asteroideAlbino.png";
     this.asteroidSize = [[40, 40], [80, 80], [150, 150], [450, 450]];
     this.asteroidSpeed = rel.asteroidSpeed;
-
     this.x; this.y; this.dx; this.dy;
-
     this.random = Math.floor(Math.random() * 4);
     if (config !== undefined) {
-      this.x = config.x
-      this.y = config.y
-      this.r = config.r
-      this.dx = config.dx
-      this.dy = config.dy
+      this.x = config.x;
+      this.y = config.y;
+      this.r = config.r;
+      this.dx = config.dx;
+      this.dy = config.dy;
     } else {
       if (this.random === 0) {
         this.x = rel.canvas.width;
@@ -23,7 +20,7 @@ class Asteroid {
         this.dx = -this.asteroidSpeed;
         this.dy = Math.random() * this.asteroidSpeed * 2 - this.asteroidSpeed;
       } else if (this.random === 1) {
-        this.x = 0
+        this.x = 0;
         this.y = Math.floor(Math.random() * rel.canvas.height);
         this.dx = this.asteroidSpeed;
         this.dy = Math.random() * this.asteroidSpeed * 2 - this.asteroidSpeed;

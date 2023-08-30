@@ -1,17 +1,4 @@
-
 /*
-ATENCION
-Se ha actualizado el formato del almacenamiento de los datos, que debe seguir el formato del nivel uno
-Niveles actualizados [2/20]
-Niveles comprobados [2/20]
-Cambios realizados:
- - "title" ahora hace funcion de ID
- - "messages" (ahora en plural) almacenara los datos de todos los mensajes.
-
-
- ATENCION 2 
- Se probara la implementacion de diferentes caracteristicas en [Level 1] tales como mayor rango, cadencia o movilidad
- A continuacion se mostraran los atributos que seran elegidos:
   - asteroidSpeed
   - backgroundColor
   - turnSpeed
@@ -54,7 +41,7 @@ const levelsInfo = [
     song: "The Asteroid Chase",
     characteristics: {
       playerAceleration: 1.2,
-      backgroundColor: "#00cccc",
+      backgroundColor: "#004040",
     },
     waves: [
       {
@@ -84,6 +71,13 @@ const levelsInfo = [
       {
         title: "Wave 1",
         asteroids: [2, 0, 0, 0],
+        laserBeams: {
+          timeRandomness: 20/* % */,
+          period: 5000 /* ms */,
+          focus: "playerFocused",
+          amount: "infinite",
+          delay: 500 /* frames, cs probably */,
+        },
         messages: [
           ["Level 3", 1000],
           ["The asteroid belt is no place for the faint of heart. \nStay focused!", 4000],

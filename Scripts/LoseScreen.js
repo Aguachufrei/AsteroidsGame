@@ -5,14 +5,12 @@ class LoseScreen{
     this.lower = Math.min(this.width, this.height);
     this.higher = Math.max(this.width, this.height);
 
-
     this.div = document.createElement("div"); 
     this.div.setAttribute("id","loseDiv");
     this.div.style.width = this.lower + "px";
     this.div.style.height = this.lower + "px";
     this.div.style.top = (this.higher - this.width)/2 + "px";
     this.div.style.left = (this.higher - this.height)/2 + "px";
-
 
     this.image = new Image;
     this.image.src = "Images/TitleScreen.png";
@@ -44,7 +42,7 @@ class LoseScreen{
     this.button = document.createElement("button");
     this.button.setAttribute("id","retryLoseButton");
     this.button.setAttribute("onClick", `${detail}(${levelNum})`);
-    this.button.innerHTML = "Retry"
+    this.button.innerHTML = "Retry";
     this.button.classList.add("no-pressed-button");
     this.button.style.fontSize     = Math.round(this.lower / 35)     + "px";
     this.button.style.width        = Math.round(this.lower* 4 / 6)      + "px";
@@ -53,9 +51,7 @@ class LoseScreen{
     this.button.style.left         = Math.round(this.lower *0/ 6)  + "px";
     this.button.style.borderRadius = Math.round(this.lower / 30)     + "px";
     this.div.appendChild(this.button);
-
     this.audio = new Audio("Audios/youLost.mp3");
-
 
     this.button = document.createElement("button");
     this.button.setAttribute("id","loseButton");
@@ -64,7 +60,7 @@ class LoseScreen{
     } else if(detail === "sandbox"|| detail === "survival"){
       this.button.setAttribute("onClick", "titles()");
     }
-    this.button.innerHTML = "back"
+    this.button.innerHTML = "back";
     this.button.classList.add("no-pressed-button");
     this.button.style.fontSize     = Math.round(this.lower / 35)      + "px";
     this.button.style.width        = Math.round(this.lower*1.5 / 5)       + "px";

@@ -10,9 +10,11 @@ class Bullet{
     this.live = 30;
     this.bulletSpeed = 20;
   }
+
   init(){
     rel.bulletsArray.push(this);
   }
+
   update(){
     if(!this.alive){return;}
     this.live--;
@@ -28,7 +30,7 @@ class Bullet{
     rel.ctx.closePath();
     if(this.live <= 0&&rel.player.bulletsDie){
       this.alive = false;
-      rel.bulletsArray.splice(rel.bulletsArray.indexOf(this),1)
+      rel.bulletsArray.splice(rel.bulletsArray.indexOf(this),1);
     }
     if(this.x < -25){
       this.x = rel.canvas.width + 25;

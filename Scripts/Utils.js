@@ -13,10 +13,12 @@ const Utils = {
     yield fdx;
     yield fdy;
   },
+
   emitEvent(name, detail) {
     const event = new CustomEvent(name, { detail });
     document.dispatchEvent(event);
   },
+
   destroy(object) {
     for (var variableKey in object) {
       if (object.hasOwnProperty(variableKey)) {
@@ -24,6 +26,7 @@ const Utils = {
       }
     }
   },
+
   defaultIfError(string, value) {
     try {
       eval(string);
@@ -46,16 +49,15 @@ const Utils = {
 
     let dx = Math.abs(circle.x - rect.x - rect.width / 2);
     let dy = Math.abs(circle.y - rect.y - rect.height / 2);
-    if (dx > (rect.width/2 + circle.r)) { return false; }
-    if (dy > (rect.height/2 + circle.r)) { return false; }
-    if (dx <= (rect.width/2)) { return true; } 
-    if (dy <= (rect.height/2)) { return true; }
-    let Dx=dx-rect.w/2;
-    let Dy=dy-rect.h/2;
-    return (Dx*Dx+Dy*Dy<=(circle.r*circle.r));
-
-
+    if (dx > (rect.width / 2 + circle.r)) { return false; }
+    if (dy > (rect.height / 2 + circle.r)) { return false; }
+    if (dx <= (rect.width / 2)) { return true; }
+    if (dy <= (rect.height / 2)) { return true; }
+    let Dx = dx - rect.w / 2;
+    let Dy = dy - rect.h / 2;
+    return (Dx * Dx + Dy * Dy <= (circle.r * circle.r));
   },
+
   circleRotatedRectangleCollision(circle, rect) {
     // Rotate circle's center point back
     let unrotatedCircleX = Math.cos(-rect.a * Math.PI / 180) * (circle.x - rect.width / 2) - Math.sin(-rect.a * Math.PI / 180) * (circle.y - rect.height / 2) + rect.width / 2;
@@ -89,11 +91,12 @@ const Utils = {
       return false;
     }
   },
+
   circleCircleCollision(c1, c2, xr) {
     dx = c1.x - c2.x;
     dy = c1.y - c2.y;
-    dr = c1.r + c2.r
-    if (xr != undefined) dr *= 2
+    dr = c1.r + c2.r;
+    if (xr != undefined) { dr *= 2; }
     if (Math.sqrt(dx * dx + dy * dy) < dr) {
       return true;
     } else {
